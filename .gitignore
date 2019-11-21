@@ -1,2 +1,4 @@
 .vscode
-models
+models/
+data/
+.ipynb_checkpoints
