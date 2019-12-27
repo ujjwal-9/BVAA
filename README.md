@@ -1,2 +1,3 @@
-# pyramid-adversarial-examples
-Adversarial examples made from image pyramids.
+# Beta VAE Adversarial Attack
+
+Work in Progress
