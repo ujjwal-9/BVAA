@@ -33,7 +33,7 @@ class Encoder(nn.Module):
 		self.conv3 = nn.Conv2d(hidden_channels, hidden_channels, kernel_size, **cnn_kwargs)
 
 		if self.img_size[1] == self.img_size[2] == 64:
-			self.conv4 = nn.Conv2d(hidden_channels, hidden_channels, kernel_size, **cnn_kwargs)
+			self.conv_64 = nn.Conv2d(hidden_channels, hidden_channels, kernel_size, **cnn_kwargs)
 
 		self.lin1 = nn.Linear(np.product(self.reshape), hidden_dim)
 		self.lin2 = nn.Linear(hidden_dim, hidden_dim)
@@ -48,7 +48,7 @@ class Encoder(nn.Module):
 		x = torch.relu(self.conv3(x))
 
 		if self.img_size[1] == self.img_size[2] == 64:
-			x = torch.relu(self.conv4(x))
+			x = torch.relu(self.conv_64(x))
 
 		x = x.view((batch_size, -1))
 		x = torch.relu(self.lin1(x))
