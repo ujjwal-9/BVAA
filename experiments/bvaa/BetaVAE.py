@@ -899,9 +899,9 @@ mnist_siamese_dataset_test = SiameseMNIST(mnist_dataset_test)
 
 
 class Config:
-    def __init__(self, image_size=32, mode='train', model_path='./model/', 
-                 generate_path='./model/', num_epochs=100, distance_weight=1.0, dataset='MNIST', 
-                 tensorboard=True, generator=model, batch_size=64, batch_size_test=1000):
+    def __init__(self, image_size=32, mode='train', model_path='./model/Siamese', 
+                 generate_path='./Generated', num_epochs=100, distance_weight=1.0, 
+                 dataset='MNIST', tensorboard=True, generator=model, batch_size=64, batch_size_test=1000):
         self.mode = mode
         self.image_size = image_size
         self.model_path = model_path
@@ -1053,16 +1053,15 @@ class SiameseGanSolver(object):
 
             # At the end save generator and discriminator to files
             if (epoch + 1) % 10 == 0:
-                g_path = os.path.join(self.model_path, 'generator-%d.pt' % (epoch+1))
+                g_path = os.path.join(self.model_path, 'G', 'G-%d.pt' % (epoch+1))
                 torch.save(self.generator.state_dict(), g_path)
-                d_path = os.path.join(self.model_path, 'discriminator-%d.pt' % (epoch+1))
+                d_path = os.path.join(self.model_path, 'D', 'D-%d.pt' % (epoch+1))
                 torch.save(self.discriminator.state_dict(), d_path)
 
         if self.tensorboard:
             self.tb_writer.close()
 
     def _monitor_phase_0(self, writer, step, n_images=10):
-        """Monitor discriminator's accuracy, generate preview images of generator."""
         # Measure accuracy of identity verification by discriminator
         correct_pairs = 0
         total_pairs = 0
@@ -1113,7 +1112,7 @@ class SiameseGanSolver(object):
     def generate(self):
         """Generate privatized images."""
         # Load trained parameters (generator)
-        g_path = os.path.join(self.model_path, 'generator-%d.pkl' % self.num_epochs)
+        g_path = os.path.join(self.model_path, 'G', 'G-%d.pkl' % self.num_epochs)
         self.generator.load_state_dict(torch.load(g_path))
         self.generator.eval()
 
@@ -1131,11 +1130,11 @@ class SiameseGanSolver(object):
         correct_pairs = 0
         total_pairs = 0
 
-        g_path = os.path.join(self.model_path, 'generator-%d.pkl' % self.num_epochs)
+        g_path = os.path.join(self.model_path, 'G', 'G-%d.pkl' % self.num_epochs)
         self.generator.load_state_dict(torch.load(g_path))
         self.generator.eval()
 
-        d_path = os.path.join(self.model_path, 'discriminator-%d.pkl' % self.num_epochs)
+        d_path = os.path.join(self.model_path, 'D', 'D-%d.pkl' % self.num_epochs)
         self.discriminator.load_state_dict(torch.load(d_path))
         self.discriminator.eval()
 
@@ -1169,7 +1168,7 @@ def denorm(image):
     return out.clamp(0, 1)
 
 
-# In[35]:
+# In[34]:
 
 
 from datetime import datetime, time
@@ -1182,19 +1181,13 @@ solver = SiameseGanSolver(config, siamese_data_loader)
 date1 = datetime.now()
 
 
-# In[36]:
+# In[35]:
 
 
 get_ipython().run_cell_magic('time', '', 'solver.train()')
 
 
-# In[37]:
-
-
-torch.save(solver.state_dict(), './model/solver.pt')
-
-
-# In[ ]:
+# In[36]:
 
 
 
