@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 import numpy as np
@@ -17,7 +17,7 @@ from torch import nn
 from torchvision.utils import save_image
 
 
-# In[ ]:
+# In[2]:
 
 
 batch_size = 64
@@ -40,14 +40,14 @@ train_loader = torch.utils.data.DataLoader(mnist_dataset, batch_size=batch_size,
 test_loader = torch.utils.data.DataLoader(mnist_dataset_test, batch_size=batch_size, shuffle=True)
 
 
-# In[ ]:
+# In[3]:
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device
 
 
-# In[ ]:
+# In[4]:
 
 
 # class Encoder(nn.Module):
@@ -123,7 +123,7 @@ class Encoder(nn.Module):
         return mu, logvar
 
 
-# In[ ]:
+# In[5]:
 
 
 # class Decoder(nn.Module):
@@ -193,7 +193,7 @@ class Decoder(nn.Module):
         return x
 
 
-# In[ ]:
+# In[6]:
 
 
 # class VAE(nn.Module):
@@ -257,14 +257,14 @@ class VAE(nn.Module):
         return latent_sample
 
 
-# In[ ]:
+# In[7]:
 
 
 examples = enumerate(test_loader)
 batch_idx, (example_data, example_targets) = next(examples)
 
 
-# In[ ]:
+# In[8]:
 
 
 import matplotlib.pyplot as plt
@@ -280,13 +280,13 @@ for i in range(6):
 fig
 
 
-# In[ ]:
+# In[9]:
 
 
 list(example_data[0].shape)
 
 
-# In[ ]:
+# In[10]:
 
 
 def get_activation_name(activation):
@@ -344,7 +344,7 @@ def weights_init(module):
         linear_init(module)
 
 
-# In[ ]:
+# In[11]:
 
 
 img_size = list(example_data[0].shape) # mnist image
@@ -353,13 +353,13 @@ z_size = 12
 model = VAE(img_size, z_size).to(device) # migrates to CUDA if you can
 
 
-# In[ ]:
+# In[12]:
 
 
 model
 
 
-# In[ ]:
+# In[13]:
 
 
 def linear_annealing(init, fin, step, annealing_steps):
@@ -413,7 +413,7 @@ def loss_function(x_hat, x, mu, log_var, is_train, n_train_steps, steps_anneal=0
     return vae_loss
 
 
-# In[ ]:
+# In[14]:
 
 
 class Trainer:
@@ -462,32 +462,32 @@ class Trainer:
         print('Test loss: {:.4f}'.format(test_loss/len(test.dataset)))
 
 
-# In[ ]:
+# In[15]:
 
 
 # trainer = Trainer(model)
 
 
-# In[ ]:
+# In[16]:
 
 
 # %%time
 # trainer(train_loader, test_loader)
 
 
-# In[ ]:
+# In[17]:
 
 
 # torch.save(model.state_dict(), './model/betaVAE.pt')
 
 
-# In[ ]:
+# In[18]:
 
 
 model.load_state_dict(torch.load('./model/betaVAE.pt'))
 
 
-# In[ ]:
+# In[19]:
 
 
 from torch.optim.lr_scheduler import StepLR
@@ -516,7 +516,7 @@ class Net(nn.Module):
         return output
 
 
-# In[ ]:
+# In[20]:
 
 
 def train(model, device, train_loader, optimizer, epoch):
@@ -535,7 +535,7 @@ def train(model, device, train_loader, optimizer, epoch):
                 100. * batch_idx / len(train_loader), loss.item()))
 
 
-# In[ ]:
+# In[21]:
 
 
 def test(model, vae_model, device, test_loader):
@@ -558,7 +558,7 @@ def test(model, vae_model, device, test_loader):
         100. * correct / len(test_loader.dataset)))
 
 
-# In[ ]:
+# In[22]:
 
 
 test_batch_size = 1000
@@ -576,7 +576,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
 
-# In[ ]:
+# In[23]:
 
 
 model_classification = Net().to(device)
@@ -585,7 +585,7 @@ optimizer = optim.Adadelta(model_classification.parameters(), lr=lr)
 scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 
 
-# In[ ]:
+# In[24]:
 
 
 # for epoch in range(1, epochs + 1):
@@ -594,7 +594,7 @@ scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 #     scheduler.step()
 
 
-# In[ ]:
+# In[25]:
 
 
 class SiameseDiscriminator(nn.Module):
@@ -642,7 +642,7 @@ class SiameseDiscriminator(nn.Module):
         return output1, output2
 
 
-# In[ ]:
+# In[26]:
 
 
 class SiameseLoss(nn.Module):
@@ -667,7 +667,7 @@ class SiameseLoss(nn.Module):
         return F.pairwise_distance(output1, output2) > self.margin * threshold_factor
 
 
-# In[ ]:
+# In[27]:
 
 
 class DistanceBasedLoss(nn.Module):
@@ -701,7 +701,7 @@ class DistanceBasedLoss(nn.Module):
         return F.pairwise_distance(output1, output2) > self.margin * threshold_factor
 
 
-# In[ ]:
+# In[28]:
 
 
 class ContrastiveLoss(nn.Module):
@@ -732,7 +732,7 @@ class ContrastiveLoss(nn.Module):
         return F.pairwise_distance(output1, output2) > self.margin * threshold_factor
 
 
-# In[ ]:
+# In[29]:
 
 
 from math import exp
@@ -807,13 +807,7 @@ class SSIM(nn.Module):
         return _ssim(img1, img2, window, self.window_size, channel, self.size_average)
 
 
-# In[ ]:
-
-
-mnist_dataset_test.transforms
-
-
-# In[ ]:
+# In[30]:
 
 
 import numpy as np
@@ -888,26 +882,26 @@ class SiameseMNIST(Dataset):
         if self.transform is not None:
             img1 = self.transform(img1)
             img2 = self.transform(img2)
-        return torch.FloatTensor([target]), img1.unsqueeze_(0), img2.unsqueeze_(0)
+        return torch.FloatTensor([target]), img1, img2
 
     def __len__(self):
         return len(self.mnist_dataset)
 
 
-# In[ ]:
+# In[31]:
 
 
-mnist_siamese_dataloader = SiameseMNIST(mnist_dataset)
-mnist_siamese_dataloader_test = SiameseMNIST(mnist_dataset_test)
+mnist_siamese_dataset = SiameseMNIST(mnist_dataset)
+mnist_siamese_dataset_test = SiameseMNIST(mnist_dataset_test)
 
 
-# In[ ]:
+# In[32]:
 
 
 class Config:
     def __init__(self, image_size=32, mode='train', model_path='./model/', 
                  generate_path='./model/', num_epochs=100, distance_weight=1.0, dataset='MNIST', 
-                 data_loader=mnist_siamese_dataloader, tensorboard=True, generator=model):
+                 tensorboard=True, generator=model, batch_size=64, batch_size_test=1000):
         self.mode = mode
         self.image_size = image_size
         self.model_path = model_path
@@ -917,17 +911,18 @@ class Config:
         self.distance_weight = distance_weight
         self.tensorboard = tensorboard
         self.generator = generator
-        self.data_loader = data_loader
+        self.batch_size = batch_size
+        self.batch_size_test = batch_size_test
 
 
-# In[ ]:
+# In[33]:
 
 
 from tqdm import tqdm
 class SiameseGanSolver(object):
     """Solving GAN-like neural network with siamese discriminator."""
 
-    def __init__(self, config):
+    def __init__(self, config, data_loader):
         """Set parameters of neural network and its training."""
         self.ssim_loss = SSIM()
         self.generator = config.generator
@@ -946,7 +941,8 @@ class SiameseGanSolver(object):
         self.num_epochs = config.num_epochs
         self.distance_weight = config.distance_weight
 
-        self.data_loader = config.data_loader
+        self.data_loader = data_loader
+#         print(self.data_loader.dataset)
         self.generate_path = config.generate_path
         self.model_path = config.model_path
         self.tensorboard = config.tensorboard
@@ -984,8 +980,10 @@ class SiameseGanSolver(object):
 
         for epoch in tqdm(range(self.num_epochs)):
             print(str(epoch) + " " + str(datetime.now()))
-
+#             i = 0
             for label, images0, images1 in self.data_loader:
+#                 i += 1
+#                 print(i)
                 images0 = to_variable(images0)
                 images1 = to_variable(images1)
 #                 print("label:", label)
@@ -1039,13 +1037,13 @@ class SiameseGanSolver(object):
                 # Write losses to tensorboard
                 if self.tensorboard:
                     self.tb_writer.add_scalar('phase0/discriminator_real_loss',
-                                              d_real_loss.data[0], step)
+                                              d_real_loss.item(), step)
                     self.tb_writer.add_scalar('phase0/discriminator_fake_loss',
-                                              d_fake_loss.data[0], step)
+                                              d_fake_loss.item(), step)
                     self.tb_writer.add_scalar('phase0/generator_loss',
-                                              g_loss.data[0], step)
+                                              g_loss.item(), step)
                     self.tb_writer.add_scalar('phase0/distance_loss',
-                                              distance.data[0], step)
+                                              distance.item(), step)
 
                     step += 1
 
@@ -1080,7 +1078,7 @@ class SiameseGanSolver(object):
             predictions = self.distance_based_loss.predict(output0, output1)
             predictions = predictions.type(label.data.type())
 
-            correct_pairs += (predictions == label).sum().data[0]
+            correct_pairs += (predictions == label).sum().item()
             total_pairs += len(predictions == label)
 
             if total_pairs > 1000:
@@ -1093,16 +1091,23 @@ class SiameseGanSolver(object):
         # Generate previews of privatized images
         reals, fakes = [], []
         for _, image, _ in self.data_loader.dataset:
-            image = image.unsqueeze(0)
-            reals.append(denorm(to_variable(image).data)[0])
-            fakes.append(denorm(self.generator(to_variable(image)).data)[0])
+#             print("i: ", image.shape)
+            g_image, _, _ = self.generator(to_variable(image).unsqueeze(0))
+            g_image = g_image.squeeze(0)
+#             print("g: ", g_image.shape)
+            reals.append(denorm(to_variable(image).data[0]))
+            fakes.append(denorm(to_variable(g_image).data[0]))
             if len(reals) == n_images:
                 break
 
         # Write images to tensorboard
         real_previews = torchvision.utils.make_grid(reals, nrow=n_images)
         fake_previews = torchvision.utils.make_grid(fakes, nrow=n_images)
-        img = torchvision.utils.make_grid([real_previews, fake_previews], nrow=1)
+#         print(real_previews.shape)
+#         print(fake_previews.shape)
+#         img = torchvision.utils.make_grid([real_previews, fake_previews], nrow=1)
+        img = torchvision.utils.make_grid(torch.stack(
+            [*real_previews.unsqueeze_(1).unbind(0), *fake_previews.unsqueeze_(1).unbind(0)]), nrow=1)
         writer.add_image('Previews', img, step)
 
     def generate(self):
@@ -1114,7 +1119,7 @@ class SiameseGanSolver(object):
 
         # Generate the images
         for relative_path, image in self.data_loader:
-            fake_image = self.generator(to_variable(image))
+            fake_image, _, _ = self.generator(to_variable(image))
             fake_path = os.path.join(self.generate_path, relative_path[0])
             if not os.path.exists(os.path.dirname(fake_path)):
                 os.makedirs(os.path.dirname(fake_path))
@@ -1140,12 +1145,12 @@ class SiameseGanSolver(object):
             label = to_variable(label)
 
             # Predict label = 1 if outputs are dissimilar (distance > margin)
-            privatized_images0 = self.generator(images0)
+            privatized_images0, _, _ = self.generator(images0)
             output0, output1 = self.discriminator(privatized_images0, images1)
             predictions = self.distance_based_loss.predict(output0, output1)
             predictions = predictions.type(label.data.type())
 
-            correct_pairs += (predictions == label).sum().data[0]
+            correct_pairs += (predictions == label).sum().item()
             total_pairs += len(predictions)
 
         accuracy = correct_pairs / total_pairs
@@ -1164,22 +1169,33 @@ def denorm(image):
     return out.clamp(0, 1)
 
 
-# In[ ]:
+# In[35]:
 
 
-import tensorboardX, math
-config = Config(tensorboard=False)
-solver = SiameseGanSolver(config)
+from datetime import datetime, time
+import tensorboardX, math, os
+from torch.utils.data import DataLoader
+config = Config(num_epochs=200, tensorboard=True)
+siamese_data_loader = DataLoader(dataset=mnist_siamese_dataset, batch_size=config.batch_size, shuffle=True)
+siamese_data_loader_test = DataLoader(dataset=mnist_siamese_dataset_test, batch_size=config.batch_size_test, shuffle=True)
+solver = SiameseGanSolver(config, siamese_data_loader)
+date1 = datetime.now()
 
 
-# In[ ]:
+# In[36]:
 
 
-solver.train()
+get_ipython().run_cell_magic('time', '', 'solver.train()')
 
 
-# In[ ]:
+# In[37]:
 
 
 torch.save(solver.state_dict(), './model/solver.pt')
+
+
+# In[ ]:
+
+
+
 
