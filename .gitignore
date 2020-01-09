@@ -7,3 +7,4 @@ __pycache__
 experiments/results/
 experiments/bvaa/runs/
 experiments/bvaa/model/
+experiments/bvaa/mail.py
