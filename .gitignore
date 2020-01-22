@@ -1,6 +1,8 @@
 .vscode
 models/
 data/
+samples
+runs
 .ipynb_checkpoints
 mail.py
 *.pyc
@@ -9,3 +11,8 @@ experiments/results/
 experiments/bvaa/runs/
 experiments/bvaa/model/
 experiments/bvaa/mail.py
+
+experiments/bvaa/src/results/samples
+experiments/bvaa/src/runs
+experiments/bvaa/src/model/
+experiments/bvaa/src/mail.py
