@@ -2,6 +2,7 @@
 models/
 data/
 .ipynb_checkpoints
+mail.py
 *.pyc
 __pycache__
 experiments/results/
