@@ -99,6 +99,29 @@ class BetaHLoss(BaseLoss):
 
 		return loss
 
+class BetaULoss(BaseLoss):
+	
+	def __init__(self, beta=4, **kwargs):
+		super().__init__(**kwargs)
+		self.beta = beta
+
+	def __call__(self, data, recon_data, latent_dist, is_train, storer, **kwargs):
+		storer = _pre_call(is_train, storer)
+
+		reconst_loss = _reconstruction_loss(data, recon_data, storer=storer, distribution=self.rec_dist)
+
+		kl_loss = _kl_normal_loss(*latent_dist, storer)
+		anneal_reg = (linear_annealing(0, 1, self.n_train_steps, self.steps_anneal) if is_train else 1)
+
+		loss_D = -torch.mean(discriminator(real_imgs)) + torch.mean(discriminator(fake_imgs))
+		
+		loss = reconst_loss + anneal_reg * (self.beta * kl_loss)
+
+		if storer is not None:
+			storer['loss'].append(loss.item())
+
+		return loss
+
 
 class BetaBLoss(BaseLoss):
 

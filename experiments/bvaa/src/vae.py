@@ -17,8 +17,13 @@ class VAE(nn.Module):
 		self.latent_dim = latent_dim
 		self.img_size = img_size
 		self.num_pixels = self.img_size[1] * self.img_size[2]
-		self.encoder = Encoder(self.img_size, self.latent_dim)
-		self.decoder = Decoder(self.img_size, self.latent_dim)
+		if encoder is None:
+			encoder = Encoder(self.img_size, self.latent_dim)
+		if decoder is None:
+			decoder = Decoder(self.img_size, self.latent_dim)
+		
+		self.encoder = encoder
+		self.decoder = decoder
 		self.reset_parameters()
 
 	def reparameterize(self, mean, logvar):
