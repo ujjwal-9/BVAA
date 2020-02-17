@@ -1,9 +1,10 @@
 .vscode
-models/
-data/
+models
+data
 samples
 runs
 .ipynb_checkpoints
+results
 mail.py
 *.pyc
 __pycache__
