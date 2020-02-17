@@ -6,6 +6,7 @@ runs
 .ipynb_checkpoints
 results
 mail.py
+*.pt
 *.pyc
 __pycache__
 experiments/results/
