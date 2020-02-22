@@ -29,17 +29,19 @@ class Net(nn.Module):
         x = F.relu(x)
         x = self.dropout2(x)
         x = self.fc2(x)
-        output = F.log_softmax(x, dim=1)
+        output = F.softmax(x, dim=1)
         return output
 
 
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
+    criterion = nn.BCELoss()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
+        target = (target.reshape(target.shape[0],1) == torch.arange(10).reshape(1, 10).to(device)).float().to(device)
         optimizer.zero_grad()
         output = model(data)
-        loss = F.nll_loss(output, target)
+        loss = criterion(output, target)
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
@@ -52,11 +54,13 @@ def test(args, model, device, test_loader):
     model.eval()
     test_loss = 0
     correct = 0
+    criterion = nn.BCELoss()
     with torch.no_grad():
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
+            target_logit = (target.reshape(target.shape[0],1) == torch.arange(10).reshape(1, 10).to(device)).float().to(device)
             output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
+            test_loss += criterion(output, target_logit).item()  # sum up batch loss
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
             correct += pred.eq(target.view_as(pred)).sum().item()
 
@@ -119,7 +123,7 @@ def main():
         scheduler.step()
 
     if args.save_model:
-        torch.save(model.state_dict(), "models/mnist_cnn.pt")
+        torch.save(model.state_dict(), "models/mnist_cnn_non_log.pt")
 
 
 if __name__ == '__main__':
