@@ -129,9 +129,9 @@ class Trainer():
                     mean_loss = print_every_loss
                 else:
                     mean_loss = print_every_loss / self.print_loss_every
-                print('{}/{}\tLoss: {:.3f}'.format(batch_idx * len(data),
-                                                  len(data_loader.dataset),
-                                                  self.model.num_pixels * mean_loss))
+                # print('{}/{}\tLoss: {:.3f}'.format(batch_idx * len(data),
+                #                                   len(data_loader.dataset),
+                #                                   self.model.num_pixels * mean_loss))
                 print_every_loss = 0.
         # Return mean epoch loss
         return epoch_loss / len(data_loader.dataset)
