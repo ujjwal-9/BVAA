@@ -1,9 +1,85 @@
-import glob
+import glob, random
 import numpy as np
 from skimage.io import imread
+import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets, transforms
 
+class attackDataset(Dataset):
+    def __init__(self, data, attack_digit, target_digit, train=True):
+        self.data = data
+        self.attack_digit = attack_digit
+        self.target_digit = target_digit
+        self.train = train
+        self.attack_digits = []
+        self.target_digits = []
+        # print(len(self.data))
+        for i in range(len(self.data)):
+            
+            if self.data[i][1] == self.attack_digit:
+                self.attack_digits.append(self.data[i][0])
+            
+            elif self.train and self.data[i][1] == self.target_digit:
+                self.target_digits.append(self.data[i][0])
+            
+        # else:
+        #     for i in range(len(self.data)):
+        #         if self.data[i][1] == self.attack_digit:
+        #             self.attack_digits.append(np.array(self.data[i][0]))
+
+
+        # self.target_digits = torch.Tensor(self.target_digits)
+        # self.attack_digits = torch.Tensor(self.attack_digits)
+        # print(len(self.attack_digits))
+        # print(len(self.target_digits))
+
+    def __len__(self):
+        # if self.train:
+        #     return len(self.data) * len(self.target_digits)
+        # else:
+        #     return len(self.attack_digits)
+        if self.train:
+            return len(self.data)
+        else:
+            return len(self.attack_digits)
+
+    def __getitem__(self, index):
+        # if self.train:
+        #     i = index // len(self.target_digits)
+        #     extra = index - i * len(self.target_digits)
+        #     return self.attack_digits[i], self.target_digits[extra]
+        # else:
+        #     return self.attack_digits[index]
+        if self.train:
+            attack = random.choice(self.attack_digits)
+            target = random.choice(self.target_digits)
+            return attack, target
+        else:
+            return random.choice(self.attack_digits)
+
+
+
+
+
+def get_mnist_dataloaders_attack(attack_digit, target_digit, train_batch_size=128, test_batch_size=32, path_to_data='../data'):
+    """MNIST dataloader with (32, 32) images."""
+    all_transforms = transforms.Compose([
+        transforms.Resize(32),
+        transforms.ToTensor()
+    ])
+    
+    train_data = datasets.MNIST(path_to_data, train=True, download=True,
+                                transform=all_transforms)
+    test_data = datasets.MNIST(path_to_data, train=False,
+                               transform=all_transforms)
+    
+    train_attack = attackDataset(train_data, attack_digit, target_digit)
+    test_attack = attackDataset(test_data, attack_digit, target_digit, train=False)
+    
+    train_loader = DataLoader(train_attack, batch_size=train_batch_size, shuffle=True)
+    test_loader = DataLoader(test_attack, batch_size=test_batch_size, shuffle=True)
+    
+    return train_loader, test_loader
 
 def get_mnist_dataloaders(batch_size=128, path_to_data='../data'):
     """MNIST dataloader with (32, 32) images."""
