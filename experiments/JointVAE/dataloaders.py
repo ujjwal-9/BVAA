@@ -38,10 +38,11 @@ class attackDataset(Dataset):
         #     return len(self.data) * len(self.target_digits)
         # else:
         #     return len(self.attack_digits)
-        if self.train:
-            return len(self.data)
-        else:
-            return len(self.attack_digits)
+        # if self.train:
+        #     return len(self.data)
+        # else:
+        #     return len(self.attack_digits)
+        return len(self.attack_digits)
 
     def __getitem__(self, index):
         # if self.train:
@@ -50,12 +51,13 @@ class attackDataset(Dataset):
         #     return self.attack_digits[i], self.target_digits[extra]
         # else:
         #     return self.attack_digits[index]
-        if self.train:
-            attack = random.choice(self.attack_digits)
-            target = random.choice(self.target_digits)
-            return attack, target
-        else:
-            return random.choice(self.attack_digits)
+        # if self.train:
+        #     attack = random.choice(self.attack_digits)
+        #     target = random.choice(self.target_digits)
+        #     return attack, target
+        # else:
+        #     return random.choice(self.attack_digits)
+        return self.attack_digits[index]
 
 
 
