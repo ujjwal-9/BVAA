@@ -1,6 +1,7 @@
 import glob, random
 import numpy as np
 from skimage.io import imread
+from skimage import transform
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets, transforms
@@ -170,11 +171,33 @@ def get_chairs_test_dataloader(batch_size=62,
 
 def get_celeba_dataloader(batch_size=128, path_to_data='../celeba_64'):
     """CelebA dataloader with (64, 64) images."""
-    celeba_data = CelebADataset(path_to_data,
-                                transform=transforms.ToTensor())
-    celeba_loader = DataLoader(celeba_data, batch_size=batch_size,
+    all_transforms = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    train_data = CelebADataset(path_to_data, transform=all_transforms, train=True)
+    test_data = CelebADataset(path_to_data, transform=all_transforms, train=False)
+    train_loader = DataLoader(train_data, batch_size=batch_size,
                                shuffle=True)
-    return celeba_loader
+    test_loader = DataLoader(test_data, batch_size=batch_size,
+                               shuffle=True)
+    return train_loader, test_loader
+
+def get_svhn_dataloader(batch_size=128, path_to_data='../celeba_64'):
+    """CelebA dataloader with (64, 64) images."""
+    all_transforms = transforms.Compose([
+        transforms.Resize(32),
+        transforms.ToTensor()
+    ])
+    train_data = datasets.SVHN(path_to_data, download=True, split="train",
+                                transform=all_transforms)
+    test_data = datasets.SVHN(path_to_data, split="test", download=True,
+                                transform=all_transforms)
+    train_loader = DataLoader(train_data, batch_size=batch_size,
+                               shuffle=True)
+    test_loader = DataLoader(test_data, batch_size=batch_size,
+                               shuffle=True)
+
+    return train_loader, test_loader
 
 
 class DSpritesDataset(Dataset):
@@ -207,24 +230,47 @@ class DSpritesDataset(Dataset):
 
 class CelebADataset(Dataset):
     """CelebA dataset with 64 by 64 images."""
-    def __init__(self, path_to_data, subsample=1, transform=None):
+    def __init__(self, path_to_data, subsample=1, transform=None, train=True):
         """
         Parameters
         ----------
         subsample : int
             Only load every |subsample| number of images.
         """
-        self.img_paths = glob.glob(path_to_data + '/*')[::subsample]
+        if train:
+            self.img_paths = glob.glob(path_to_data + '/Img/train/*')[::subsample]
+        else:
+            self.img_paths = glob.glob(path_to_data + '/Img/test/*')[::subsample]
         self.transform = transform
+        with open(path_to_data+'/Anno/list_attr_celeba.txt') as f:
+            data_raw = f.read()
+        lines = data_raw.split("\n")
+
+        keys = lines[1].strip().split()
+        values = {}
+        # Go over each line (skip the last one, as it is empty).
+        for line in lines[2:-1]:
+            row_values = line.strip().split()
+            values[row_values[0]] = int(row_values[20])
+
+        self.keys = keys
+        self.annotations = values
+
+        del keys
+        del values
 
     def __len__(self):
         return len(self.img_paths)
 
     def __getitem__(self, idx):
         sample_path = self.img_paths[idx]
-        sample = imread(sample_path)
-
+        img_name = sample_path.split('/')[-1]
+        sample = transform.resize(imread(sample_path), (64, 64))
+        target = self.annotations[img_name]
+        if target == -1:
+            target = 0
+        # print("{}:{}".format(img_name, self.annotations[img_name]))
         if self.transform:
             sample = self.transform(sample)
         # Since there are no labels, we just return 0 for the "label" here
-        return sample, 0
+        return sample, target
