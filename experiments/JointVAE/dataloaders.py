@@ -251,7 +251,7 @@ class CelebADataset(Dataset):
         # Go over each line (skip the last one, as it is empty).
         for line in lines[2:-1]:
             row_values = line.strip().split()
-            values[row_values[0]] = int(row_values[20])
+            values[row_values[0]] = int(row_values[21])
 
         self.keys = keys
         self.annotations = values
